@@ -34,7 +34,7 @@ namespace PasswordGenerator
         /// Asses password by Entropy measure
         /// </summary>
         /// <returns></returns>
-        private int AssessPotentialPassword()
+        private double AssessPotentialPassword()
         {
             string accessible_characters = FormAccesibleSymbols();
 
@@ -44,13 +44,13 @@ namespace PasswordGenerator
             int ac_amount = accessible_characters.Length;   // amount of accesible characters availible
             int password_length = symb_amount_box.Text.Length;
 
-            int password_strength = password_length * (int)Math.Log(ac_amount, 2);
+            double password_strength = password_length * Math.Log(ac_amount, 2);
             return password_strength;
         }
 
         private void PasswordEvaluation()
         {
-            int password_strength = AssessPotentialPassword();
+            double password_strength = AssessPotentialPassword();
             if (password_strength == 0)
             {
                 password_complexity.Content = "";
@@ -66,7 +66,7 @@ namespace PasswordGenerator
                 password_complexity.Content = "Medium";
                 progressBar1.Value = 45;
             }
-            else if (password_strength < 17)
+            else if (password_strength < 18)
             {
                 password_complexity.Content = "Strong";
                 progressBar1.Value = 77;
@@ -143,7 +143,6 @@ namespace PasswordGenerator
 
             return true;
         }
-
         private string GeneratePassword(string accesible_symbols)
         {
             string password = "";
@@ -208,13 +207,7 @@ namespace PasswordGenerator
             if (IfNumberFieldCorrect())
                 PasswordEvaluation();
         }
-
         
-
-        
-
-        
-
         private void cb1_Checked(object sender, RoutedEventArgs e)
         {
             if (IfNumberFieldCorrect())
@@ -232,7 +225,6 @@ namespace PasswordGenerator
             if (IfNumberFieldCorrect())
                 PasswordEvaluation();
         }
-
         private void cb2_Checked(object sender, RoutedEventArgs e)
         {
             if (IfNumberFieldCorrect())
