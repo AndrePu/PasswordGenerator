@@ -17,15 +17,65 @@ namespace PasswordGenerator
 {
     public partial class MainWindow : Window
     {
-        /*Potentially included in password symbols*/
+        /*Needed for generation password global variables*/
         string number_symb = "0123456789";
         string lowercase_symb = "abcdefghijklmnopqrstvwxyz";
         string uppercase_symb = "ABCDEFGHIJKLMNOPQRSTVWXYZ";
         string special_symb = "!@#$%^&*()~_+=-";
+
+        
         public MainWindow()
         {
             InitializeComponent();
             symb_amount_box.MaxLength = 4;
+        }
+        
+        /// <summary>
+        /// Asses password by Entropy measure
+        /// </summary>
+        /// <returns></returns>
+        private int AssessPotentialPassword()
+        {
+            string accessible_characters = FormAccesibleSymbols();
+
+            if (accessible_characters == null)
+                return 0;
+
+            int ac_amount = accessible_characters.Length;   // amount of accesible characters availible
+            int password_length = symb_amount_box.Text.Length;
+
+            int password_strength = password_length * (int)Math.Log(ac_amount, 2);
+            return password_strength;
+        }
+
+        private void PasswordEvaluation()
+        {
+            int password_strength = AssessPotentialPassword();
+            if (password_strength == 0)
+            {
+                password_complexity.Content = "";
+                progressBar1.Value = 0;
+            }
+            else if (password_strength < 9)
+            {
+                password_complexity.Content = "Weak";
+                progressBar1.Value = 15;
+            }
+            else if (password_strength < 12)
+            {
+                password_complexity.Content = "Medium";
+                progressBar1.Value = 45;
+            }
+            else if (password_strength < 17)
+            {
+                password_complexity.Content = "Strong";
+                progressBar1.Value = 77;
+            }
+            else
+            {
+                password_complexity.Content = "Very Strong";
+                progressBar1.Value = 99;
+            }
         }
 
         /// <summary>
@@ -87,12 +137,13 @@ namespace PasswordGenerator
             }
             else if (!IfNumberFieldCorrect())
             {
-                symb_amount_warning.Content = "*enter the number (0-9 symbols)";
+                MessageBox.Show("Incorect format of password size field!", "Message", MessageBoxButton.OK, MessageBoxImage.Information);
                 return false;
             }
 
             return true;
         }
+
         private string GeneratePassword(string accesible_symbols)
         {
             string password = "";
@@ -107,6 +158,7 @@ namespace PasswordGenerator
             }
             return password;
         }
+
         /// <summary>
         /// Erases the password that was generated previous time and all the messages.
         /// </summary>
@@ -127,6 +179,76 @@ namespace PasswordGenerator
                 answer_box.Text = new_password;
             }
 
+        }
+
+        private void symb_amount_box_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (IfNumberFieldCorrect())
+            {
+                symb_amount_warning.Foreground = Brushes.LimeGreen;
+                symb_amount_warning.Content = "*Correct";
+
+                PasswordEvaluation();
+            }
+            else
+            {
+                symb_amount_warning.Foreground = Brushes.Red;
+                symb_amount_warning.Content = "*enter the number(0 - 9 symbols)";
+            }
+        }
+
+        private void cb3_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (IfNumberFieldCorrect())
+                PasswordEvaluation();
+        }
+
+        private void cb3_Checked(object sender, RoutedEventArgs e)
+        {
+            if (IfNumberFieldCorrect())
+                PasswordEvaluation();
+        }
+
+        
+
+        
+
+        
+
+        private void cb1_Checked(object sender, RoutedEventArgs e)
+        {
+            if (IfNumberFieldCorrect())
+                PasswordEvaluation();
+        }
+
+        private void cb1_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (IfNumberFieldCorrect())
+                PasswordEvaluation();
+        }
+
+        private void cb2_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (IfNumberFieldCorrect())
+                PasswordEvaluation();
+        }
+
+        private void cb2_Checked(object sender, RoutedEventArgs e)
+        {
+            if (IfNumberFieldCorrect())
+                PasswordEvaluation();
+        }
+
+        private void cb4_Checked(object sender, RoutedEventArgs e)
+        {
+            if (IfNumberFieldCorrect())
+                PasswordEvaluation();
+        }
+
+        private void cb4_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (IfNumberFieldCorrect())
+                PasswordEvaluation();
         }
     }
 }
