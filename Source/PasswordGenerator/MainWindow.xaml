@@ -35,7 +35,7 @@
         <Image HorizontalAlignment="Left" Height="75" Margin="420,215,0,0" VerticalAlignment="Top" Width="75" Source="Images/key.png"/>
         <Label Content="Enter symbols amount:" HorizontalAlignment="Left" Height="31" Margin="26,10,0,0" VerticalAlignment="Top" Width="151" FontSize="14"/>
         <TextBox x:Name="symb_amount_box" Height="23" TextWrapping="Wrap" Text="" FontSize="14" Background="White" Margin="225, 10,217.4,273.8" UndoLimit="1" TextChanged="symb_amount_box_TextChanged"/>
-        <Label x:Name="symb_amount_warning" Content="" HorizontalAlignment="Left" Height="28" Margin="303,12,0,0" VerticalAlignment="Top" Width="203" Foreground="Red"/>
+        <Label x:Name="symb_amount_warning" Content="" HorizontalAlignment="Left" Height="28" Margin="309,12,0,0" VerticalAlignment="Top" Width="203" Foreground="Red"/>
         <ProgressBar x:Name="progressBar1" HorizontalAlignment="Left" Height="10" VerticalAlignment="Top" Width="200" Margin="225,169,0,0" Background="#FFE50000" LargeChange="11" BorderBrush="#FFA6A6A6" Foreground="#FF009658"/>
         <Label x:Name="password_complexity" Content="" HorizontalAlignment="Left" Height="33" Margin="225,175,0,0" VerticalAlignment="Top" Width="200" FontWeight="Bold" Foreground="#FF00A213"/>
     </Grid>

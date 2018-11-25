@@ -7,7 +7,7 @@ first five (textBox and four radioButtons) - needed for filling the data for gen
 sixth (Button) - the start of generating a new password.
 seventh (textBox) - the output window that indicates generated set of symbols.
 
-Programming language and environment version: C#, .Net 4.6.1
+Programming language and environment version: C#, .Net 4.6.1 
 ___________________________________________________________
 
 Startup file: "PasswordGenerator.exe".

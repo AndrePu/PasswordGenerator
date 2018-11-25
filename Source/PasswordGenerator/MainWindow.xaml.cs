@@ -29,9 +29,10 @@ namespace PasswordGenerator
             InitializeComponent();
             symb_amount_box.MaxLength = 4;
         }
-        
+
         /// <summary>
-        /// Asses password by Entropy measure
+        /// Asses password by Entropy measure.
+        /// More detail info(2.1-2.2 sections): https://en.wikipedia.org/wiki/Password_strength
         /// </summary>
         /// <returns></returns>
         private double AssessPotentialPassword()
@@ -42,7 +43,7 @@ namespace PasswordGenerator
                 return 0;
 
             int ac_amount = accessible_characters.Length;   // amount of accesible characters availible
-            int password_length = symb_amount_box.Text.Length;
+            int password_length = int.Parse(symb_amount_box.Text);
 
             double password_strength = password_length * Math.Log(ac_amount, 2);
             return password_strength;
@@ -51,22 +52,24 @@ namespace PasswordGenerator
         private void PasswordEvaluation()
         {
             double password_strength = AssessPotentialPassword();
+            double[] desired_entropy = { 40, 80, 96}; // desired entropy that we set by ourself for medium, strong, very strong passwords accordingly
+
             if (password_strength == 0)
             {
                 password_complexity.Content = "";
                 progressBar1.Value = 0;
             }
-            else if (password_strength < 9)
+            else if (password_strength < desired_entropy[0])
             {
                 password_complexity.Content = "Weak";
                 progressBar1.Value = 15;
             }
-            else if (password_strength < 12)
+            else if (password_strength < desired_entropy[1])
             {
                 password_complexity.Content = "Medium";
                 progressBar1.Value = 45;
             }
-            else if (password_strength < 18)
+            else if (password_strength < desired_entropy[2])
             {
                 password_complexity.Content = "Strong";
                 progressBar1.Value = 77;
@@ -107,7 +110,10 @@ namespace PasswordGenerator
         /// <returns>Returns true if he did.</returns>
         private bool IfNumberFieldCorrect()
         {
-            int sab_length = symb_amount_box.Text.Length; 
+            int sab_length = symb_amount_box.Text.Length;
+            if (sab_length == 0)
+                return false;
+
             for (int i = 0; i < sab_length; i++)
             {
                 if (symb_amount_box.Text[i] < '0' || symb_amount_box.Text[i] > '9')
@@ -159,11 +165,10 @@ namespace PasswordGenerator
         }
 
         /// <summary>
-        /// Erases the password that was generated previous time and all the messages.
+        /// Erases the password that was generated previous time
         /// </summary>
         private void ErasePreviousWork()
         {
-            symb_amount_warning.Content = "";
             answer_box.Text = "";
         }
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -182,7 +187,13 @@ namespace PasswordGenerator
 
         private void symb_amount_box_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (IfNumberFieldCorrect())
+            if (symb_amount_box.Text == "")
+            {
+                symb_amount_warning.Content = "";
+                password_complexity.Content = "";
+                progressBar1.Value = 0;
+            }
+            else if (IfNumberFieldCorrect())
             {
                 symb_amount_warning.Foreground = Brushes.LimeGreen;
                 symb_amount_warning.Content = "*Correct";
