@@ -17,7 +17,6 @@ namespace PasswordGenerator
 {
     public partial class MainWindow : Window
     {
-        /*Needed for generation password global variables*/
         string number_symb = "0123456789";
         string lowercase_symb = "abcdefghijklmnopqrstvwxyz";
         string uppercase_symb = "ABCDEFGHIJKLMNOPQRSTVWXYZ";
@@ -42,7 +41,7 @@ namespace PasswordGenerator
             if (accessible_characters == null)
                 return 0;
 
-            int ac_amount = accessible_characters.Length;   // amount of accesible characters availible
+            int ac_amount = accessible_characters.Length;
             int password_length = int.Parse(symb_amount_box.Text);
 
             double password_strength = password_length * Math.Log(ac_amount, 2);
@@ -167,13 +166,10 @@ namespace PasswordGenerator
         /// <summary>
         /// Erases the password that was generated previous time
         /// </summary>
-        private void ErasePreviousWork()
+        
+        private void GeneratePassword_Click(object sender, RoutedEventArgs e)
         {
             answer_box.Text = "";
-        }
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            ErasePreviousWork();
 
             string accessible_symbols = FormAccesibleSymbols();
 
@@ -206,18 +202,6 @@ namespace PasswordGenerator
                 symb_amount_warning.Content = "*enter the number(0 - 9 symbols)";
             }
         }
-
-        private void cb3_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (IfNumberFieldCorrect())
-                PasswordEvaluation();
-        }
-
-        private void cb3_Checked(object sender, RoutedEventArgs e)
-        {
-            if (IfNumberFieldCorrect())
-                PasswordEvaluation();
-        }
         
         private void cb1_Checked(object sender, RoutedEventArgs e)
         {
@@ -237,6 +221,18 @@ namespace PasswordGenerator
                 PasswordEvaluation();
         }
         private void cb2_Checked(object sender, RoutedEventArgs e)
+        {
+            if (IfNumberFieldCorrect())
+                PasswordEvaluation();
+        }
+
+        private void cb3_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (IfNumberFieldCorrect())
+                PasswordEvaluation();
+        }
+
+        private void cb3_Checked(object sender, RoutedEventArgs e)
         {
             if (IfNumberFieldCorrect())
                 PasswordEvaluation();
