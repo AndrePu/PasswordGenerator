@@ -21,12 +21,18 @@ namespace PasswordGenerator
         string lowercase_symb = "abcdefghijklmnopqrstvwxyz";
         string uppercase_symb = "ABCDEFGHIJKLMNOPQRSTVWXYZ";
         string special_symb = "!@#$%^&*()~_+=-";
+        System.Windows.Forms.SaveFileDialog saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
 
-        
+
         public MainWindow()
         {
             InitializeComponent();
             symb_amount_box.MaxLength = 4;
+
+            saveFileDialog1.Filter = "Text files(*.txt)|*.txt|All files(*.*)|*.*";
+            saveFileDialog1.DefaultExt = "(*.txt)|*.txt";                               // расширение файла по умолчанию
+            saveFileDialog1.AddExtension = true;                                        // автоматом добавлять расширение файла, если оно не указано при его сохранении
+            saveFileDialog1.Title = "Save password..";
         }
 
         /// <summary>
@@ -131,18 +137,18 @@ namespace PasswordGenerator
         {
             if (accesible_symbols == null)
             {
-                MessageBox.Show("You must choose at least one option!", "Message", MessageBoxButton.OK, MessageBoxImage.Information);
+                System.Windows.MessageBox.Show("You must choose at least one option!", "Message", MessageBoxButton.OK, MessageBoxImage.Information);
                 return false;
             }
             else if (symb_amount_box.Text == "")
             {
-                MessageBox.Show("You must point the size of password!", "Message", MessageBoxButton.OK, MessageBoxImage.Information);
+                System.Windows.MessageBox.Show("You must point the size of password!", "Message", MessageBoxButton.OK, MessageBoxImage.Information);
                 symb_amount_warning.Content = "*needed field";
                 return false;
             }
             else if (!IfNumberFieldCorrect())
-            {
-                MessageBox.Show("Incorect format of password size field!", "Message", MessageBoxButton.OK, MessageBoxImage.Information);
+            {                 
+                System.Windows.MessageBox.Show("Incorect format of password size field!", "Message", MessageBoxButton.OK, MessageBoxImage.Information);
                 return false;
             }
 
@@ -248,6 +254,34 @@ namespace PasswordGenerator
         {
             if (IfNumberFieldCorrect())
                 PasswordEvaluation();
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            App.Current.Shutdown();
+        }
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            this.DragMove();
+        }
+
+        private void save_button_Click(object sender, RoutedEventArgs e)
+        {
+            if (answer_box.Text == String.Empty)
+            {
+                System.Windows.MessageBox.Show("You must generate password first!", "Message", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            else
+            {
+                if (saveFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
+                    return;
+
+                // Получаем выбранный файл
+                string filename = saveFileDialog1.FileName;
+
+                System.IO.File.WriteAllText(filename, answer_box.Text);
+            }
         }
     }
 }
