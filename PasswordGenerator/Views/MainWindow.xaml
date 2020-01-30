@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PasswordGenerator"
         mc:Ignorable="d"
-        Title="Password Generator" Height="350" Width="525" Icon="pass_icon_D13_icon.ico" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
+        Title="Password Generator" Height="350" Width="525" Icon="/Assets/app_icon.ico" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
     <Window.Resources>
         <Style x:Key="{x:Type ProgressBar}" TargetType="{x:Type ProgressBar}">
             <Setter Property="Template">
@@ -60,7 +60,7 @@
                 </TextBlock>
             </Button.Content>
         </Button>
-        <Image HorizontalAlignment="Left" Height="76" Margin="218,76.4,0,0" VerticalAlignment="Top" Width="75" Source="Images/key.png" Grid.Column="2" Grid.Row="2" Grid.RowSpan="2"/>
+        <Image HorizontalAlignment="Left" Height="76" Margin="218,76.4,0,0" VerticalAlignment="Top" Width="75" Source="/Assets/keys.png" Grid.Column="2" Grid.Row="2" Grid.RowSpan="2"/>
 
         <Label x:Name="symb_amount_warning" Content="" HorizontalAlignment="Left" Height="28" Margin="90,10,0,0" VerticalAlignment="Top" Width="203" Foreground="Red" Grid.Column="2" Grid.RowSpan="2"/>
         <Label x:Name="password_complexity" Content="" HorizontalAlignment="Left" Height="33" Margin="9,35,0,0" VerticalAlignment="Top" Width="200" FontWeight="Bold" Foreground="#FF00A213" Grid.Column="2" Grid.Row="2"/>
