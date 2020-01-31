@@ -111,9 +111,9 @@ namespace PasswordGenerator
             return passwordSize_textbox.Text.Length == 0;
         }
         
-        private bool CanGenerate(string accesible_symbols, out string errorText)
+        private bool CanGenerate(string accessibleSymbols, out string errorText)
         {
-            if (accesible_symbols == null)
+            if (accessibleSymbols == null)
             {
                 errorText = "You must choose at least one option!";
                 return false;
@@ -182,62 +182,10 @@ namespace PasswordGenerator
                 passwordSaver.Save(password_textbox.Text);
             }
         }
-        
 
-        private void numberSymbols_checkbox_Checked(object sender, RoutedEventArgs e)
+        private void checkbox_StateChanged(object sender, RoutedEventArgs e)
         {
-            if (!IsPasswordSizeFieldEmpty())
-            {
-                PasswordEvaluation();
-            }
-        }
 
-        private void numberSymbols_checkbox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (!IsPasswordSizeFieldEmpty())
-                PasswordEvaluation();
-        }
-
-        private void lowercaseSymbols_checkbox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (!IsPasswordSizeFieldEmpty())
-            {
-                PasswordEvaluation();
-            }
-        }
-
-        private void lowercaseSymbols_checkbox_Checked(object sender, RoutedEventArgs e)
-        {
-            if (!IsPasswordSizeFieldEmpty())
-                PasswordEvaluation();
-        }
-
-        private void uppercaseSymbols_checkbox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (!IsPasswordSizeFieldEmpty())
-            {
-                PasswordEvaluation();
-            }
-        }
-
-        private void uppercaseSymbols_checkbox_Checked(object sender, RoutedEventArgs e)
-        {
-            if (!IsPasswordSizeFieldEmpty())
-            {
-                PasswordEvaluation();
-            }
-        }
-
-        private void specialSymbols_checkbox_Checked(object sender, RoutedEventArgs e)
-        {
-            if (!IsPasswordSizeFieldEmpty())
-            {
-                PasswordEvaluation();
-            }
-        }
-
-        private void specialSymbols_checkbox_Unchecked(object sender, RoutedEventArgs e)
-        {
             if (!IsPasswordSizeFieldEmpty())
             {
                 PasswordEvaluation();
