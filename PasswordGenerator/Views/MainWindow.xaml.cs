@@ -12,276 +12,242 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using PasswordGenerator.Interfaces;
+using PasswordGenerator.Helpers;
+using PasswordGenerator.Enums;
 
 namespace PasswordGenerator
 {
     public partial class MainWindow : Window
     {
-        string number_symb = "0123456789";
-        string lowercase_symb = "abcdefghijklmnopqrstvwxyz";
-        string uppercase_symb = "ABCDEFGHIJKLMNOPQRSTVWXYZ";
-        string special_symb = "!@#$%^&*()~_+=-";
-        System.Windows.Forms.SaveFileDialog saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-
+        private string numberSymbols = "0123456789";
+        private string lowercaseSymbols = "abcdefghijklmnopqrstvwxyz";
+        private string uppercaseSymbols = "ABCDEFGHIJKLMNOPQRSTVWXYZ";
+        private string specialSymbols = "!@#$%^&*()~_+=-";
+        
+        private readonly IPasswordGenerator passwordGenerator;
+        private readonly IRandomPasswordEvaluator randomPasswordEvaluator;
+        private readonly IPasswordSaver passwordSaver;
 
         public MainWindow()
         {
             InitializeComponent();
-            symb_amount_box.MaxLength = 4;
+            
+            passwordGenerator = new GeneralPasswordGenerator();
+            randomPasswordEvaluator = new EntropyRandomPasswordEvaluator();
+            passwordSaver = new DialogPasswordSaver();
 
-            saveFileDialog1.Filter = "Text files(*.txt)|*.txt|All files(*.*)|*.*";
-            saveFileDialog1.DefaultExt = "(*.txt)|*.txt";                               // расширение файла по умолчанию
-            saveFileDialog1.AddExtension = true;                                        // автоматом добавлять расширение файла, если оно не указано при его сохранении
-            saveFileDialog1.Title = "Save password..";
-        }
-
-        /// <summary>
-        /// Asses password by Entropy measure.
-        /// More detail info(2.1-2.2 sections): https://en.wikipedia.org/wiki/Password_strength
-        /// </summary>
-        /// <returns></returns>
-        private double AssessPotentialPassword()
-        {
-            string accessible_characters = FormAccesibleSymbols();
-
-            if (accessible_characters == null)
-                return 0;
-
-            int ac_amount = accessible_characters.Length;
-            int password_length = int.Parse(symb_amount_box.Text);
-
-            double password_strength = password_length * Math.Log(ac_amount, 2);
-            return password_strength;
+            passwordSize_textbox.MaxLength = 4;
         }
 
         private void PasswordEvaluation()
         {
-            double password_strength = AssessPotentialPassword();
-            double[] desired_entropy = { 40, 80, 96}; // desired entropy that we set by ourself for medium, strong, very strong passwords accordingly
+            int passwordSize = int.Parse(passwordSize_textbox.Text);
+            string accessibleSymbols = GetAccesibleSymbols();
 
-            if (password_strength == 0)
+            if (accessibleSymbols == null || passwordSize == 0)
             {
-                password_complexity.Content = "";
-                progressBar1.Value = 0;
+                passwordComplexity_label.Content = String.Empty;
+                progressBar.Value = 0;
+                return;
             }
-            else if (password_strength < desired_entropy[0])
+
+            PasswordRating passwordStrength = randomPasswordEvaluator.Evaluate(passwordSize, accessibleSymbols);
+            
+            switch (passwordStrength)
             {
-                password_complexity.Content = "Weak";
-                progressBar1.Value = 15;
+                case PasswordRating.Weak:
+                    {
+                        passwordComplexity_label.Content = "Weak";
+                        progressBar.Value = 15;
+                        break;
+                    }
+                case PasswordRating.Medium:
+                    {
+                        passwordComplexity_label.Content = "Medium";
+                        progressBar.Value = 45;
+
+                        break;
+                    }
+                case PasswordRating.Strong:
+                    {
+                        passwordComplexity_label.Content = "Strong";
+                        progressBar.Value = 77;
+
+                        break;
+                    }
+                case PasswordRating.VeryStrong:
+                    {
+                        passwordComplexity_label.Content = "Very Strong";
+                        progressBar.Value = 99;
+
+                        break;
+                    }
             }
-            else if (password_strength < desired_entropy[1])
-            {
-                password_complexity.Content = "Medium";
-                progressBar1.Value = 45;
-            }
-            else if (password_strength < desired_entropy[2])
-            {
-                password_complexity.Content = "Strong";
-                progressBar1.Value = 77;
-            }
-            else
-            {
-                password_complexity.Content = "Very Strong";
-                progressBar1.Value = 99;
-            }
+            
         }
-
-        /// <summary>
-        /// Forms needed set of symbols that will be used for generating password.
-        /// </summary>
-        /// <returns>Returns all the availible symbols.</returns>
-        private string FormAccesibleSymbols()
+        
+        private string GetAccesibleSymbols()
         {            
-            string accessible_symbols = null;
+            string accessibleSymbols = null;
 
-            if (cb1.IsChecked == true)
-                accessible_symbols += number_symb;
+            if (numberSymbols_checkbox.IsChecked.Value)
+                accessibleSymbols += numberSymbols;
 
-            if (cb2.IsChecked == true)
-                accessible_symbols += lowercase_symb;
+            if (lowercaseSymbols_checkbox.IsChecked.Value)
+                accessibleSymbols += lowercaseSymbols;
 
-            if (cb3.IsChecked == true)
-                accessible_symbols += uppercase_symb;
+            if (uppercaseSymbols_checkbox.IsChecked.Value)
+                accessibleSymbols += uppercaseSymbols;
 
-            if (cb4.IsChecked == true)
-                accessible_symbols += special_symb;
+            if (specialSymbols_checkbox.IsChecked.Value)
+                accessibleSymbols += specialSymbols;
 
-            return accessible_symbols;
+            return accessibleSymbols;
         }
 
-        /// <summary>
-        /// Checks if the user entered the correct information in our password size field
-        /// </summary>
-        /// <returns>Returns true if he did.</returns>
-        private bool IfNumberFieldCorrect()
+        private bool IsPasswordSizeFieldEmpty()
         {
-            int sab_length = symb_amount_box.Text.Length;
-            if (sab_length == 0)
-                return false;
-
-            for (int i = 0; i < sab_length; i++)
-            {
-                if (symb_amount_box.Text[i] < '0' || symb_amount_box.Text[i] > '9')
-                    return false;
-            }
-
-            return true;
+            return passwordSize_textbox.Text.Length == 0;
         }
-
-        /// <summary>
-        /// Tells us if we have an opportunity to generate the password
-        /// </summary>
-        /// <param name="accesible_symbols"></param>
-        /// <returns>Return true if we have.</returns>
-        private bool CanGenerate(string accesible_symbols)
+        
+        private bool CanGenerate(string accesible_symbols, out string errorText)
         {
             if (accesible_symbols == null)
             {
-                System.Windows.MessageBox.Show("You must choose at least one option!", "Message", MessageBoxButton.OK, MessageBoxImage.Information);
+                errorText = "You must choose at least one option!";
                 return false;
             }
-            else if (symb_amount_box.Text == "")
+            else if (passwordSize_textbox.Text == String.Empty)
             {
-                System.Windows.MessageBox.Show("You must point the size of password!", "Message", MessageBoxButton.OK, MessageBoxImage.Information);
-                symb_amount_warning.Content = "*needed field";
+                errorText = "You must point the size of password!";
                 return false;
             }
-            else if (!IfNumberFieldCorrect())
-            {                 
-                System.Windows.MessageBox.Show("Incorect format of password size field!", "Message", MessageBoxButton.OK, MessageBoxImage.Information);
-                return false;
-            }
+
+            errorText = null;
 
             return true;
         }
-        private string GeneratePassword(string accesible_symbols)
-        {
-            string password = "";
-            int password_size = int.Parse(symb_amount_box.Text);
-            int as_amount = accesible_symbols.Length; // accessible symbols amount
+               
 
-            Random me = new Random();
-            for (int i = 0; i < password_size; i++)
+        private void PasswordSize_textbox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if ((e.Key < Key.D0 || e.Key > Key.D9) && e.Key != Key.Back)
             {
-                int rand_index = me.Next(0, as_amount - 1);
-                password += accesible_symbols[rand_index];
+                e.Handled = true;
             }
-            return password;
         }
 
-        /// <summary>
-        /// Erases the password that was generated previous time
-        /// </summary>
-        
-        private void GeneratePassword_Click(object sender, RoutedEventArgs e)
+        private void passwordSize_textbox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            answer_box.Text = "";
-
-            string accessible_symbols = FormAccesibleSymbols();
-
-            if (CanGenerate(accessible_symbols))
+            
+            if (IsPasswordSizeFieldEmpty())
             {
-                string new_password = GeneratePassword(accessible_symbols);
-                answer_box.Text = new_password;
-            }
-
-        }
-
-        private void symb_amount_box_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (symb_amount_box.Text == "")
-            {
-                symb_amount_warning.Content = "";
-                password_complexity.Content = "";
-                progressBar1.Value = 0;
-            }
-            else if (IfNumberFieldCorrect())
-            {
-                symb_amount_warning.Foreground = Brushes.LimeGreen;
-                symb_amount_warning.Content = "*Correct";
-
-                PasswordEvaluation();
+                passwordComplexity_label.Content = String.Empty;
+                progressBar.Value = 0;
             }
             else
             {
-                symb_amount_warning.Foreground = Brushes.Red;
-                symb_amount_warning.Content = "*enter the number(0 - 9 symbols)";
+                PasswordEvaluation();
+            }
+        }
+
+
+        private void GeneratePassword_Click(object sender, RoutedEventArgs e)
+        {
+            string accessibleSymbols = GetAccesibleSymbols();
+            string errorText;
+
+            if (CanGenerate(accessibleSymbols, out errorText))
+            {
+                int passwordSize = int.Parse(passwordSize_textbox.Text);
+
+                password_textbox.Text = passwordGenerator.Generate(passwordSize, accessibleSymbols);
+            }
+            else
+            {
+                MessageBox.Show(errorText, "Message", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+
+        }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (password_textbox.Text == String.Empty)
+            {
+                MessageBox.Show("You must generate password first!", "Message", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            else
+            {
+                passwordSaver.Save(password_textbox.Text);
             }
         }
         
-        private void cb1_Checked(object sender, RoutedEventArgs e)
+
+        private void numberSymbols_checkbox_Checked(object sender, RoutedEventArgs e)
         {
-            if (IfNumberFieldCorrect())
+            if (!IsPasswordSizeFieldEmpty())
+            {
+                PasswordEvaluation();
+            }
+        }
+
+        private void numberSymbols_checkbox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (!IsPasswordSizeFieldEmpty())
                 PasswordEvaluation();
         }
 
-        private void cb1_Unchecked(object sender, RoutedEventArgs e)
+        private void lowercaseSymbols_checkbox_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (IfNumberFieldCorrect())
+            if (!IsPasswordSizeFieldEmpty())
+            {
+                PasswordEvaluation();
+            }
+        }
+
+        private void lowercaseSymbols_checkbox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (!IsPasswordSizeFieldEmpty())
                 PasswordEvaluation();
         }
 
-        private void cb2_Unchecked(object sender, RoutedEventArgs e)
+        private void uppercaseSymbols_checkbox_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (IfNumberFieldCorrect())
+            if (!IsPasswordSizeFieldEmpty())
+            {
                 PasswordEvaluation();
-        }
-        private void cb2_Checked(object sender, RoutedEventArgs e)
-        {
-            if (IfNumberFieldCorrect())
-                PasswordEvaluation();
+            }
         }
 
-        private void cb3_Unchecked(object sender, RoutedEventArgs e)
+        private void uppercaseSymbols_checkbox_Checked(object sender, RoutedEventArgs e)
         {
-            if (IfNumberFieldCorrect())
+            if (!IsPasswordSizeFieldEmpty())
+            {
                 PasswordEvaluation();
+            }
         }
 
-        private void cb3_Checked(object sender, RoutedEventArgs e)
+        private void specialSymbols_checkbox_Checked(object sender, RoutedEventArgs e)
         {
-            if (IfNumberFieldCorrect())
+            if (!IsPasswordSizeFieldEmpty())
+            {
                 PasswordEvaluation();
+            }
         }
 
-        private void cb4_Checked(object sender, RoutedEventArgs e)
+        private void specialSymbols_checkbox_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (IfNumberFieldCorrect())
+            if (!IsPasswordSizeFieldEmpty())
+            {
                 PasswordEvaluation();
+            }
         }
 
-        private void cb4_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (IfNumberFieldCorrect())
-                PasswordEvaluation();
-        }
 
         private void Window_Closed(object sender, EventArgs e)
         {
             App.Current.Shutdown();
-        }
-
-        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            this.DragMove();
-        }
-
-        private void save_button_Click(object sender, RoutedEventArgs e)
-        {
-            if (answer_box.Text == String.Empty)
-            {
-                System.Windows.MessageBox.Show("You must generate password first!", "Message", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-            else
-            {
-                if (saveFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
-                    return;
-
-                // Получаем выбранный файл
-                string filename = saveFileDialog1.FileName;
-
-                System.IO.File.WriteAllText(filename, answer_box.Text);
-            }
         }
     }
 }
